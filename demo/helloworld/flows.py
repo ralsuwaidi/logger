@@ -21,7 +21,7 @@ class HelloWorldFlow(Flow):
     approve = (
         flow.View(
             UpdateProcessView,
-            fields=["approved"]
+            fields=["liked"]
         ).Permission(
             auto_create=True
         ).Next(this.check_approve)
