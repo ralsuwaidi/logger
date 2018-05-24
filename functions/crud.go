@@ -1,27 +1,3 @@
-# Making Golang Friendly with MongoDB
-
-## Setting Up Golang & MongoDB
-
-1.  Start golang normally (create src, make a new folder inside, etc)
-2.  use the command:
-
-```Go
-go get gopkg.in/mgo.v2
-```
-
-to get the mongo driver that speaks to the MongoDB server
-
-3.  Download MongoDB from [here](https://www.mongodb.com/download-center) and choosing community service
-4.  Add /path/to/mongodb/bin to PATH so you can execute the commands inside
-5.  cd to the ```src/<project>``` and create a /db folder inside then use
-```cmd
-mongod --dbpath="src/<project>/db"
-```
-6.  A server should run with the mongoDB shell, now you can communicate with it
-
-## Example Code
-*taken from [p4tin](https://gist.github.com/p4tin/9bfb778fa7089a82030c)*
-```Go
 package main
 
 import (
@@ -29,13 +5,30 @@ import (
 	"log"
 	"time"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 var connection = "localhost"
 var database = "ProfileService"
-var collection = "Profiles"
+var collection = "log"
+
+func connectAtlas() (*mgo.Session, error) {
+	mongoDialInfo := &mgo.DialInfo{
+		Addrs:    []string{"ds133630.mlab.com:33630"},
+		Database: "personal",
+		Username: "rashed",
+		Password: "password_123",
+		Timeout:  60 * time.Second,
+	}
+	session, err := mgo.DialWithInfo(mongoDialInfo)
+	if err != nil {
+		panic(err)
+	}
+	//defer session.Close()
+	fmt.Println(session.LiveServers())
+	return session, err
+}
 
 // Profile - is the memory representation of one user profile
 type Profile struct {
@@ -45,20 +38,8 @@ type Profile struct {
 	LastUpdated time.Time
 }
 
-func main() {
-	p := Profile{Name: "marco", Password: "thePassy", Age: 4, LastUpdated: time.Now()}
-
-	createFile()
-	writeFile("helo", "me")
-
-	isCreated := p.CreateOrUpdateProfile()
-	fmt.Println(isCreated)
-	fmt.Println(ShowProfile("marco").Password)
-	fmt.Println(GetProfiles())
-}
-
-// GetProfiles - Returns all the profile in the Profiles Collection
-func GetProfiles() []Profile {
+// GetLogs - Returns all the profile in the Profiles Collection
+func GetLogs() []Log {
 	session, err := mgo.Dial(connection)
 	if err != nil {
 		log.Println("Could not connect to mongo: ", err.Error())
@@ -70,10 +51,10 @@ func GetProfiles() []Profile {
 	session.SetMode(mgo.Monotonic, true)
 
 	c := session.DB(database).C(collection)
-	var profiles []Profile
-	err = c.Find(bson.M{}).All(&profiles)
+	var logs []Log
+	err = c.Find(bson.M{}).All(&logs)
 
-	return profiles
+	return logs
 }
 
 // ShowProfile - Returns the profile in the Profiles Collection with name equal to the id parameter (id == name)
@@ -134,7 +115,23 @@ func (p *Profile) CreateOrUpdateProfile() bool {
 	return true
 }
 
-```
+// CreateLog - Creates or Updates (Upsert) the profile in the Profiles Collection with id parameter
+func (p *Log) CreateLog() bool {
+	session, err := connectAtlas()
+	if err != nil {
+		log.Println("Could not connect to mongo: ", err.Error())
+		return false
+	}
+	defer session.Close()
 
-## Using MongoDB as API 
-*From [here](https://medium.com/@matryer/production-ready-mongodb-in-go-for-beginners-ef6717a77219)*
+	// Optional. Switch the session to a monotonic behavior.
+	session.SetMode(mgo.Monotonic, true)
+
+	c := session.DB("personal").C("logs")
+	_, err = c.UpsertId(p.Title, p)
+	if err != nil {
+		log.Println("Error creating Log: ", err.Error())
+		return false
+	}
+	return true
+}

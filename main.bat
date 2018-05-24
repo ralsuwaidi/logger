@@ -1,0 +1,1 @@
+go run functions/crud.go functions/logger.go functions/main.go functions/other.go

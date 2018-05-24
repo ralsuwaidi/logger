@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.grey-pink.min.css">
+    <link rel="stylesheet" href="static/index.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+</head>
+
+<body>
+
+
+
+    <div class="bgimg w3-display-container w3-animate-opacity "></div>
+    <form method="POST">
+        <div class="w3-display-middle">
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input railway" type="text" id="sample3" name="title">
+                <label class="mdl-textfield__label" for="sample3">Title</label>
+            </div>
+            <br>
+            <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows="1" id="sample5" name="body"></textarea>
+                <label class="mdl-textfield__label" for="sample5">Body</label>
+            </div>
+            <br>
+            <div>
+                <button class="mdl-button mdl-js-button mdl-js-ripple-effect" id="demo-show-toast" type="submit">
+                    Submit
+                </button>
+            </div>
+
+        </div>
+    </form>
+
+    {{if .Success}}
+
+    <div id="demo-toast-example" class="mdl-js-snackbar mdl-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button class="mdl-snackbar__action" type="button"></button>
+    </div>
+    <script>
+        (function () {
+            'use strict';
+            window['counter'] = 0;
+            var snackbarContainer = document.querySelector('#demo-toast-example');
+            var showToastButton = document.querySelector('#demo-show-toast');
+            showToastButton.addEventListener('click', function () {
+                'use strict';
+                var data = {
+                    message: 'Log Saved' + ++counter
+                };
+                snackbarContainer.MaterialSnackbar.showSnackbar(data);
+            });
+        }());
+    </script>
+
+    <ul>
+        {{range .Logs}}
+        <li>{{.Title}}</li>
+        <li>{{.Body}}</li>
+        {{end}}
+    </ul>
+
+    {{else}}
+
+    <div id="demo-toast-example" class="mdl-js-snackbar mdl-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button class="mdl-snackbar__action" type="button"></button>
+    </div>
+    <script>
+        (function () {
+            'use strict';
+            window['counter'] = 0;
+            var snackbarContainer = document.querySelector('#demo-toast-example');
+            var showToastButton = document.querySelector('#demo-show-toast');
+            showToastButton.addEventListener('click', function () {
+                'use strict';
+                var data = {
+                    message: 'DIDNT WORK' + ++counter
+                };
+                snackbarContainer.MaterialSnackbar.showSnackbar(data);
+            });
+        }());
+    </script>
+    </div>
+    {{end}}
+
+</body>
+
+</html>
